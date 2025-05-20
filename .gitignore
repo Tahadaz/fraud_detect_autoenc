@@ -1,0 +1,11 @@
+__pycache__/
+.env
+*.pyc
+*.pkl
+*.h5
+anomaly.weights.h5
+scaler.pkl
+.vscode/
+.DS_Store
+.ipynb_checkpoints/
+/data/

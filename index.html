@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Analyse d’une transaction{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Analyser une transaction</h2>
+
+<form method="POST" action="{{ url_for('analyse') }}" class="row g-3">
+
+  <!-- ─── Champs numériques ───────────────────────────── -->
+  <div class="col-md-6">
+    <label class="form-label">Distance depuis le domicile (km)</label>
+    <input type="number" name="feature1" class="form-control" step="any" required>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Distance depuis la dernière transaction (km)</label>
+    <input type="number" name="feature2" class="form-control" step="any" required>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Ratio au prix médian des achats</label>
+    <input type="number" name="feature3" class="form-control" step="any" required>
+  </div>
+
+  <!-- ─── Champs binaires ─────────────────────────────── -->
+  {% macro yes_no(name) -%}
+    <select name="{{ name }}" class="form-select" required>
+      <option value="1">Oui</option>
+      <option value="0">Non</option>
+    </select>
+  {%- endmacro %}
+
+  <div class="col-md-6">
+    <label class="form-label">Commerçant récurrent</label>
+    {{ yes_no('feature4') }}
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Carte avec puce</label>
+    {{ yes_no('feature5') }}
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Code PIN utilisé</label>
+    {{ yes_no('feature6') }}
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Commande en ligne</label>
+    {{ yes_no('feature7') }}
+  </div>
+
+  <!-- ─── Bouton submit ───────────────────────────────── -->
+  <div class="col-12 text-center mt-3">
+    <button type="submit" class="btn btn-primary btn-lg">Analyser</button>
+  </div>
+</form>
+
+<!-- ─── Résultats ─────────────────────────────────────── -->
+{% if result %}
+  {% if result.fraud is not none %}
+    <div class="alert alert-{{ result.color }} mt-4 text-center" role="alert">
+      <h4 class="alert-heading">
+        {% if result.fraud %}❌ Fraude détectée !{% else %}✅ Transaction normale{% endif %}
+      </h4>
+      <hr>
+      <p class="mb-0">
+        Score (err / seuil) : <strong>{{ result.score }}</strong> – risque {{ result.level }}
+      </p>
+    </div>
+  {% elif result.error %}
+    <div class="alert alert-warning mt-4 text-center" role="alert">
+      ⚠️ Erreur : {{ result.error }}
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}

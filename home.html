@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<!-- HERO ------------------------------------------------------->
+<header class="py-5 text-center position-relative overflow-hidden"
+        style="background:linear-gradient(135deg,#0d6efd 0%,#6610f2 100%);">
+  <h1 class="display-4 fw-semibold text-white mb-3 animate__animated animate__fadeInDown">
+    Détection de Fraudes&nbsp;<span class="fst-italic">40 ms avant qu’elles n’arrivent</span>
+  </h1>
+  <p class="lead text-white-50 mb-4 animate__animated animate__fadeInUp">
+    Projet académique – École Mohammadia d’Ingénieurs (Génie MIS)  
+    <br>Encadré par&nbsp;: <b>M.&nbsp;Youssef Lamrani</b>
+  </p>
+
+  <!-- Auteurs -->
+  <div class="d-flex justify-content-center gap-3 flex-wrap animate__animated animate__fadeInUp animate__delay-1s">
+    <span class="badge bg-light text-dark px-3 py-2">Ahmed Taha Dazine</span>
+    <span class="badge bg-light text-dark px-3 py-2">Mouad Wahidi</span>
+    <span class="badge bg-light text-dark px-3 py-2">Anouar Ouhannou</span>
+    <span class="badge bg-light text-dark px-3 py-2">Mohamed‑Saïd Adiouane</span>
+  </div>
+
+  <!-- Scroll arrow -->
+  <a href="#navcards" class="position-absolute bottom-0 start-50 translate-middle-x pb-3 text-white opacity-75">
+    <i class="bi bi-chevron-double-down fs-2"></i>
+  </a>
+</header>
+
+<!-- CARTES DE NAVIGATION --------------------------------------->
+<section id="navcards" class="container py-5" data-aos="fade-up">
+  <div class="row g-4">
+    <!-- Analyse -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm hover-shadow">
+        <div class="card-body text-center">
+          <h4 class="card-title mb-3">⚙️ Analyse d’une transaction</h4>
+          <p class="card-text">
+            Saisissez les 7 features pour évaluer instantanément
+            le risque de fraude via notre auto‑encodeur.
+          </p>
+          <a href="{{ url_for('analyse') }}" class="btn btn-primary mt-2">Tester maintenant</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Présentation -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm hover-shadow">
+        <div class="card-body text-center">
+          <h4 class="card-title mb-3">📊 Présentation complète</h4>
+          <p class="card-text">
+            Du contexte business à l’EDA, en passant par
+            l’architecture du modèle et son déploiement sur Cloud Run.
+          </p>
+          <a href="{{ url_for('presentation') }}" class="btn btn-outline-primary mt-2">Voir la présentation</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- À propos -->
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm hover-shadow">
+        <div class="card-body text-center">
+          <h4 class="card-title mb-3">📝 À propos</h4>
+          <p class="card-text">
+            Objectifs pédagogiques, répartition des tâches,
+            bibliographie et pistes d’amélioration.
+          </p>
+          <a href="{{ url_for('about') }}" class="btn btn-outline-secondary mt-2">En savoir plus</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

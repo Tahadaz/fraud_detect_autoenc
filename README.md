@@ -26,7 +26,7 @@ Ce projet implémente un système de détection de transactions bancaires fraudu
 ```├── scaler.pkl # Scaler pour la normalisation des features
 ```└── README.md # Ce fichier
 
----
+
 
 ## Installation et utilisation
 

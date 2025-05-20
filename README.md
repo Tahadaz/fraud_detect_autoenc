@@ -16,15 +16,15 @@ Ce projet implémente un système de détection de transactions bancaires fraudu
 
 ## Structure du projet
 
-`├── aut.py # API Flask avec logique de prédiction
-`├── requirements.txt # Dépendances Python
-`├── Dockerfile # Containerisation du projet
-`├── templates/ # Pages HTML (index, présentation, etc.)
-`├── static/ # Fichiers statiques (CSS, images)
-`├── model_config.json # Configuration du modèle Keras
-`├── anomaly.weights.h5 # Poids du modèle autoencodeur
-`├── scaler.pkl # Scaler pour la normalisation des features
-`└── README.md # Ce fichier
+```├── aut.py # API Flask avec logique de prédiction
+```├── requirements.txt # Dépendances Python
+```├── Dockerfile # Containerisation du projet
+```├── templates/ # Pages HTML (index, présentation, etc.)
+```├── static/ # Fichiers statiques (CSS, images)
+```├── model_config.json # Configuration du modèle Keras
+```├── anomaly.weights.h5 # Poids du modèle autoencodeur
+```├── scaler.pkl # Scaler pour la normalisation des features
+```└── README.md # Ce fichier
 
 ---
 

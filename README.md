@@ -16,17 +16,17 @@ Ce projet implémente un système de détection de transactions bancaires fraudu
 
 ## Structure du projet
 
-```├── aut.py # API Flask avec logique de prédiction
-```├── requirements.txt # Dépendances Python
-```├── Dockerfile # Containerisation du projet
-```├── templates/ # Pages HTML (index, présentation, etc.)
-```├── static/ # Fichiers statiques (CSS, images)
-```├── model_config.json # Configuration du modèle Keras
-```├── anomaly.weights.h5 # Poids du modèle autoencodeur
-```├── scaler.pkl # Scaler pour la normalisation des features
-```└── README.md # Ce fichier
+├── aut.py # API Flask avec logique de prédiction
+├── requirements.txt # Dépendances Python
+├── Dockerfile # Containerisation du projet
+├── templates/ # Pages HTML (index, présentation, etc.)
+├── static/ # Fichiers statiques (CSS, images)
+├── model_config.json # Configuration du modèle Keras
+├── anomaly.weights.h5 # Poids du modèle autoencodeur
+├── scaler.pkl # Scaler pour la normalisation des features
+└── README.md # Ce fichier
 
-
+---
 
 ## Installation et utilisation
 
@@ -38,17 +38,17 @@ Ce projet implémente un système de détection de transactions bancaires fraudu
 
 ### Installation locale
 
-```bash
-# git clone https://github.com/Tahadaz/fraud_detect_autoenc.git
-cd fraud_detect_autoenc
-pip install -r requirements.txt
-python aut.py
+`git clone https://github.com/Tahadaz/fraud_detect_autoenc.git
+`cd fraud_detect_autoenc
+`pip install -r requirements.txt
+`python aut.py
 Le serveur Flask démarre sur http://localhost:8080.
 
-Utilisation avec Docker
+### Utilisation avec Docker
 docker build -t fraud-app .
 docker run -p 8080:8080 fraud-app
-Description technique
+
+### Description technique
 Modèle : autoencodeur dense symétrique 7→64→16→6→16→64→7, activations ReLU sauf dernière couche linéaire.
 
 Données : 7 features (3 numériques + 4 binaires) extraites et normalisées.
@@ -59,7 +59,7 @@ Prédiction : une transaction est signalée comme frauduleuse si l’erreur dép
 
 Interface : formulaire web pour saisir les données d’une transaction et afficher le résultat.
 
-Résultats
+### Résultats
 Rappel (Recall) : 85%
 
 Précision (Precision) : 37%
@@ -70,7 +70,7 @@ Accuracy : 86%
 
 Ces résultats représentent un bon compromis pour un système de filtrage de premier niveau.
 
-Auteurs & Encadrement
+### Auteurs & Encadrement
 Ce projet a été réalisé par :
 
 Dazine Ahmed Taha

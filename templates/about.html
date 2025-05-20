@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}À propos{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-center animate__animated animate__fadeInDown">À propos</h2>
+
+<ul class="timeline">
+  <li data-aos="fade-right">
+    <h5>2025 – Début du projet</h5>
+    <p>Extraction du dataset et choix d’un auto‑encodeur.</p>
+  </li>
+  <li data-aos="fade-left">
+    <h5>Entraînement &amp; tuning</h5>
+    <p>Latent = 5, MAE, seuil optimisé → F1 0.44.</p>
+  </li>
+  <li data-aos="fade-right">
+    <h5>Déploiement Docker + Cloud Run</h5>
+    <p>API Flask &uarr;, site démo édu.</p>
+  </li>
+</ul>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.timeline{list-style:none;padding:0}
+.timeline li{position:relative;padding:0 0 20px 30px;border-left:3px solid #0d6efd}
+.timeline li::before{content:"";position:absolute;left:-6px;top:0;width:12px;height:12px;
+  background:#0d6efd;border-radius:50%}
+</style>
+{% endblock %}

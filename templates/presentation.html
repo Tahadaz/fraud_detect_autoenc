@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+{% block title %}Présentation détaillée{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-5 animate__animated animate__fadeInDown">
+  Détection de Fraudes par Auto‑encodeur<br>
+  <small class="fs-5 text-muted">de l’EDA au déploiement</small>
+</h2>
+<!-- 0. Story intro ----------------------------------------------------------->
+<section id="story" class="mb-6" data-aos="fade-up">
+  <h3>🕵️‍♂️ Une matinée (presque) tranquille…</h3>
+
+  <p>
+    Dimanche matin à Casablanca. Le quartier est encore endormi ; tu ouvres les
+    volets en pensant profiter d’une journée paisible. <strong>Soudain</strong>,
+    ton téléphone vibre : appel international.
+  </p>
+
+  <p>
+    — « <b>Salam alekoum</b>, ici <strong>Amine</strong>,
+    votre conseiller bancaire. »  
+    Sa voix est douce mais pressante :  
+    — « Avez‑vous autorisé un paiement de <strong>12 450 MAD</strong>
+    pour dix&nbsp;<i>iPhone 15 Pro Max</i> ? »
+  </p>
+
+  <p>
+    Ton cœur s’emballe ; évidemment, tu n’as jamais acheté autant d’iPhone d’un
+    coup !  
+    — « Non, absolument pas ! »  
+    Youssef conclut aussitôt :  
+    — « Shukran. Nous bloquons la transaction et lançons une vérification. »
+  </p>
+
+  <p>
+    <strong>Comment</strong> Youssef a‑t‑il su que ce paiement était
+    suspect ? Chaque jour, les algorithmes de
+    <em>détection d’anomalies</em> scannent des millions de transactions et
+    lèvent l’alerte dès qu’une opération s’écarte trop du
+    comportement habituel de la carte.
+  </p>
+
+  <figure class="text-center my-4">
+    <img src="{{ url_for('static', filename='img/context.jpg') }}"
+         class="img-fluid rounded shadow" style="max-width:480px"
+         alt="Illustration appel fraude">
+    <figcaption class="text-muted">
+      La fraude bancaire mondiale représente plus de 21 milliards $ de pertes
+      annuelles (Nilson Report).
+    </figcaption>
+  </figure>
+
+  <p>
+    Dans cette présentation, nous allons voir comment construire — et déployer —
+    un <strong>auto‑encodeur</strong> capable de repérer ces transactions
+    suspectes avant qu’elles n’impactent vos finances.
+  </p>
+</section>
+
+
+<!-- 1. Introduction ----------------------------------------------------------->
+<section id="intro" data-aos="fade-up" class="mb-6">
+  <h3>1️⃣ Introduction : pourquoi l’<em>anomaly detection ?</em></h3>
+  <p>
+    Dans la plupart des systèmes financiers, la fraude est un phénomène
+    <strong>extrêmement rare</strong> — typiquement moins de 0,2 % des transactions.
+    Cette rareté rend les modèles supervisés délicats : il faut beaucoup de
+    ré‑échantillonnage, et ils ont du mal à généraliser à de <em>nouvelles</em>
+    formes de fraude.
+  </p>
+  <p>
+    L’<strong>auto‑encodeur</strong> (AE) est une approche non‑supervisée qui
+    apprend la « normalité » : on le
+    <em>force</em> à compresser puis reconstruire les transactions légitimes.
+    Toute transaction mal reconstruite, c‑à‑d. avec une erreur de
+    reconstruction élevée, est signalée comme anomalie → <strong>fraude ?</strong>
+  </p>
+</section>
+
+<!-- 2. Dataset & features ----------------------------------------------------->
+<section id="dataset" class="row gy-5 align-items-center mb-6">
+  <div class="col-lg-6" data-aos="fade-right">
+    <h3>2️⃣ Dataset : 200 000 transactions Retail</h3>
+    <ul>
+      <li>200 000 échantillons après équilibrage démo (initialement 284 k).</li>
+      <li><strong>17 462 fraudes</strong> (≈ 8,7 %).</li>
+      <li>7 features expertes &nbsp;—&nbsp;3 numériques + 4 binaires.</li>
+    </ul>
+    <h5 class="mt-4">Liste &amp; signification des features :</h5>
+    <table class="table table-sm table-borderless">
+      <tr><th>distance_from_home</th><td>Distance (km) entre domicile et lieu d’achat.</td></tr>
+      <tr><th>distance_from_last_transaction</th><td>Distance (km) depuis la transaction précédente.</td></tr>
+      <tr><th>ratio_to_median_purchase_price</th><td>Montant / médiane historique du porteur.</td></tr>
+      <tr><th>repeat_retailer</th><td>(1/0) Commerçant déjà visité ?</td></tr>
+      <tr><th>used_chip</th><td>(1/0) Carte insérée (puce) vs bande.</td></tr>
+      <tr><th>used_pin_number</th><td>(1/0) Saisie d’un code PIN.</td></tr>
+      <tr><th>online_order</th><td>(1/0) Transaction en ligne.</td></tr>
+    </table>
+  </div>
+
+  <div class="col-lg-6 text-center" data-aos="fade-left">
+    <img src="{{ url_for('static', filename='img/output_16_0.png') }}"
+         class="img-fluid rounded shadow" alt="Classe Genuine vs Fraud">
+    <figcaption class="text-muted">Fig 1 ‑ Répartition Genuine / Fraud (8,7 % de fraudes).</figcaption>
+  </div>
+</section>
+
+<!-- 3. EDA -------------------------------------------------------------------->
+<section id="eda" data-aos="fade-up" class="mb-6">
+  <h3>3️⃣ Exploration des données (EDA)</h3>
+
+  <h5 class="mt-4">3.1 Corrélations</h5>
+  <p>
+    Les corrélations demeurent faibles &nbsp;—&nbsp;
+    <em>ratio_to_median_purchase_price</em> ressort comme la variable la plus
+    corrélée à la fraude (0,46). Les autres restent quasi indépendantes,
+    justifiant l’usage d’un modèle non‑linéaire.
+  </p>
+  <img src="{{ url_for('static', filename='img/output_18_0.png') }}"
+       class="img-fluid rounded shadow mb-4" alt="Heatmap corrélation">
+
+  <h5>3.2 Distribution des distances (log‑scale)</h5>
+  <div class="row gy-4">
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='img/output_20_0.png') }}"
+           class="img-fluid rounded shadow" alt="Distance from home">
+    </div>
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='img/output_21_0.png') }}"
+           class="img-fluid rounded shadow" alt="Distance from last txn">
+    </div>
+  </div>
+  <p class="mt-3">
+    Les fraudes (courbe orange) se déplacent davantage : pics autour de 80‑100 km
+    pour la distance au domicile et > 10 km pour la distance à la dernière
+    transaction.
+  </p>
+
+  <h5 class="mt-4">3.3 Variables binaires</h5>
+  <img src="{{ url_for('static', filename='img/output_22_0.png') }}"
+       class="img-fluid rounded shadow" alt="Barplots binaires">
+  <p>
+    Fait marquant : les fraudes se produisent plus souvent <i>sans</i> saisie
+    PIN et via commande en ligne — un signal fort exploité par l’AE.
+  </p>
+</section>
+
+<!-- 4. Auto‑encodeur ---------------------------------------------------------->
+<section id="ae" data-aos="fade-up" class="mb-6">
+  <h3>4️⃣ Construction de l’Auto‑encodeur</h3>
+
+  <div class="row gy-4">
+    <!-- Diagramme -->
+    <div class="col-lg-12 text-center">
+      <img src="{{ url_for('static', filename='img/ae_diagram.png') }}"
+           class="img-fluid rounded shadow"
+           alt="Architecture Auto‑encodeur">
+      <figcaption class="text-muted mt-2">
+        Fig X ‑ Schéma de l’architecture AE : encodeur (gauche) → code latent (jaune) → décodeur (droite).
+      </figcaption>
+    </div>
+
+    <!-- Explications détaillées -->
+    <div class="col-lg-12">
+      <h5 class="mt-4">Décodage pas à pas</h5>
+      <ul>
+        <li><strong>Input (7)</strong> : vecteur normalisé contenant les 7 features du paiement.</li>
+
+        <li><strong>Dense 64 (ReLU)</strong> : première couche d’encodage.  
+            &nbsp;• 64 neurones ≈ 9× la dimension d’entrée ;  
+            &nbsp;• capture les interactions linéaires et non‑linéaires de bas niveau.</li>
+
+        <li><strong>Dense 16 (ReLU)</strong> : réduction progressive.  
+            La chute 64 → 16 force le réseau à éliminer le bruit et à garder les
+            caractéristiques réellement discriminantes.</li>
+
+        <li><strong>Bottleneck = Code 5</strong> <span class="text-warning">(jaune)</span> :  
+            cœur de l’AE.  
+            5 unités = compression × <strong>1,4</strong> de l’entrée (7/5).  
+            Toute l’« essence » d’une transaction légitime doit tenir
+            ici ; la moindre anomalie se traduira par une reconstruction
+            imparfaite plus tard.</li>
+
+        <li><strong>Dense 16 → Dense 64</strong> : phase de décodage miroir.  
+            On ré‑expand progressivement le code pour retrouver l’espace original.</li>
+
+        <li><strong>Output (7)</strong> : couche linéaire (pas d’activation) qui restitue
+            les valeurs reconstruites.  
+            Entraînée avec la <code>Mean Absolute Error</code> (MAE) sur les
+            transactions <em>genuine</em> seulement.</li>
+      </ul>
+
+      <h5 class="mt-4">Pourquoi ce dimensionnement ?</h5>
+      <p>
+        <u>Trop petit</u> ➜ sous‑apprentissage : l’AE ne parvient plus à
+        reconstruire même les transactions normales.  
+        <u>Trop grand</u> ➜ l’AE « recopie » la donnée et ne distingue plus les
+        anomalies.  
+        64 → 16 → 5 offre ici le meilleur compromis empirique
+        (grid‑search rapide sur quelques dimensions latentes).
+      </p>
+
+      <h5 class="mt-4">Interprétation de l’erreur</h5>
+      <p>
+        L’AE minimise &nbsp;<kbd>∑ |x − x̂|</kbd>.  
+        Pour une transaction <em>normale</em>, la reconstruction est fidèle
+        → erreur basse &lt; 0,01.  
+        Pour une transaction <em>frauduleuse</em>, certaines features (montant,
+        distance, PIN) sortent du profil appris → erreur haute &gt; 0,01.  
+        C’est ce seuil que nous calibrons ensuite (cf. section 6) pour
+        séparer « genuine » / « fraud ».
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- 5. Entraînement ----------------------------------------------------------->
+<section id="training" data-aos="fade-up" class="mb-6">
+  <h3>5️⃣ Entraînement</h3>
+  <p>
+    L’AE est entraîné <u>uniquement</u> sur les transactions <em>genuine</em>.
+    <br>Validation : 10 % de transactions genuine pour suivre le
+    <code>val_loss</code>.
+  </p>
+  <img src="{{ url_for('static', filename='img/output_37_0.png') }}"
+       class="img-fluid rounded shadow mb-2" alt="Loss curve">
+  <p class="text-muted">Fig 2 ‑ Courbe Loss : stabilité, pas de sur‑apprentissage.</p>
+</section>
+
+<!-- 6. Seuil ------------------------------------------------------------------>
+<section id="threshold" data-aos="fade-up" class="mb-6">
+  <h3>6️⃣ Détermination du seuil optimal</h3>
+  <p>
+    On balaie le percentile de l’erreur de reconstruction entre 0 % et 30 %.
+    Objectif : <strong>maximiser le Recall</strong> tout en gardant une
+    précision acceptable.
+  </p>
+  <img src="{{ url_for('static', filename='img/output_45_0.png') }}"
+       class="img-fluid rounded shadow mb-2" alt="Metrics vs threshold">
+  <p>
+    Seuil choisi : <code>0.01</code> (ligne rouge)  
+    &nbsp;→ Recall 0.97 • Precision 0.28 • F1 0.44.
+  </p>
+</section>
+
+<!-- 7. Résultats -------------------------------------------------------------->
+<section id="results" data-aos="fade-up" class="mb-6">
+  <h3>7️⃣ Analyse des résultats</h3>
+  <div class="row gy-4">
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='img/output_46_0.png') }}"
+           class="img-fluid rounded shadow" alt="Scatter errors">
+      <figcaption class="text-muted">Dispersion des erreurs (ligne rouge = seuil).</figcaption>
+    </div>
+    <div class="col-md-6 text-center">
+      <img src="{{ url_for('static', filename='img/output_51_0.png') }}"
+           class="img-fluid rounded shadow" alt="Confusion matrix">
+      <figcaption class="text-muted">Matrice de confusion (test 200 k échantillons).</figcaption>
+    </div>
+  </div>
+
+  <h5 class="mt-4">Interprétation</h5>
+  <ul>
+    <li>97 % des fraudes détectées  → faux négatifs très faibles.</li>
+    <li>Précision 28 %  → ~3,5 alertes pour 1 vraie fraude
+        &nbsp;—&nbsp; acceptable pour un filtre de premier niveau.</li>
+  </ul>
+</section>
+
+<!-- 8. Déploiement ------------------------------------------------------------>
+<section id="deploy" data-aos="fade-up" class="mb-6">
+  <h3>8️⃣ Déploiement &amp; démo</h3>
+  <p>
+    Le modèle et l’API Flask sont encapsulés dans un conteneur Docker ; l’image
+    est poussée sur Google Container Registry puis déployée sur
+    <strong>Cloud Run</strong> pour bénéficier de l’auto‑scaling.
+  </p>
+  <img src="{{ url_for('static', filename='img/cloud_run.png') }}"
+       class="img-fluid rounded shadow mb-3" alt="Cloud Run architecture">
+  <p>
+      👉 Testez par vous‑même dans l’onglet <a href="{{ url_for('analyse') }}">Analyse</a>.
+  </p>
+</section>
+
+<!-- 9. Conclusion ------------------------------------------------------------->
+<section id="conclusion" data-aos="fade-up" class="mb-6">
+  <h3>9️⃣ Conclusion &amp; pistes futures</h3>
+  <ul>
+    <li>AE non‑supervisé : robuste pour capter des fraudes inédites.</li>
+    <li>Peut servir de <em>pré‑filtre</em> avant un modèle supervisé
+        (XGBoost) pour améliorer la précision.</li>
+    <li>Prochaine étape : entraînement incrémental + seuil dynamique
+        (adapté à la dérive des données).</li>
+  </ul>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  new Chart(document.getElementById("donut"),{
+    type:"doughnut",
+    data:{
+      labels:["Genuine","Fraud"],
+      datasets:[{data:[182538,17462],
+                 backgroundColor:["#0d6efd","#dc3545"]}]
+    },
+    options:{plugins:{legend:{position:"bottom"}},cutout:"55%"}
+  });
+});
+</script>
+{% endblock %}

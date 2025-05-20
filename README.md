@@ -25,7 +25,7 @@ Ce projet implémente un système de détection de transactions bancaires fraudu
 ```├── anomaly.weights.h5 # Poids du modèle autoencodeur
 ```├── scaler.pkl # Scaler pour la normalisation des features
 ```└── README.md # Ce fichier
-
+```
 ---
 
 ## Installation et utilisation

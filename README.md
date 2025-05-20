@@ -16,15 +16,15 @@ Ce projet implémente un système de détection de transactions bancaires fraudu
 
 ## Structure du projet
 
-├── aut.py # API Flask avec logique de prédiction
-├── requirements.txt # Dépendances Python
-├── Dockerfile # Containerisation du projet
-├── templates/ # Pages HTML (index, présentation, etc.)
-├── static/ # Fichiers statiques (CSS, images)
-├── model_config.json # Configuration du modèle Keras
-├── anomaly.weights.h5 # Poids du modèle autoencodeur
-├── scaler.pkl # Scaler pour la normalisation des features
-└── README.md # Ce fichier
+`├── aut.py # API Flask avec logique de prédiction
+`├── requirements.txt # Dépendances Python
+`├── Dockerfile # Containerisation du projet
+`├── templates/ # Pages HTML (index, présentation, etc.)
+`├── static/ # Fichiers statiques (CSS, images)
+`├── model_config.json # Configuration du modèle Keras
+`├── anomaly.weights.h5 # Poids du modèle autoencodeur
+`├── scaler.pkl # Scaler pour la normalisation des features
+`└── README.md # Ce fichier
 
 ---
 
@@ -83,10 +83,8 @@ Mohamed Said Adiouane
 
 Sous l’encadrement de Monsieur Youssef Lamrani, dans le cadre d’un projet à l’École Mohammadia d’Ingénieurs (EMI).
 
-Licence
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
 
-Remarques
+### Remarques
 Pensez à adapter le fichier scaler.pkl et les poids anomaly.weights.h5 si vous réentraîner le modèle.
 
 Le seuil d’anomalie (THRESHOLD) est modifiable dans aut.py pour ajuster la sensibilité du détecteur.

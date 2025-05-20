@@ -1,62 +1,85 @@
-# app.py
-
-import streamlit as st
-import numpy as np
-import pandas as pd
+"""
+Back‑end Flask pour l’application Fraud Detector.
+Routes :
+    /            → page d’accueil
+    /analyse     → formulaire + résultat
+    /presentation, /about
+"""
+from flask import Flask, render_template, request
+import numpy as np, pandas as pd, joblib, os
 from keras.models import model_from_json
-from sklearn.preprocessing import StandardScaler
-import joblib
 
-# Charger modèle
-with open("model_config.json", "r") as json_file:
-    model_json = json_file.read()
-autoencoder = model_from_json(model_json)
-autoencoder.load_weights("anomaly.weights.h5")
-autoencoder.compile(optimizer="adam", loss="mae")
-
-# Charger scaler
+# ─────────── Chargement du modèle et du scaler
+with open("model_config.json") as f:
+    model = model_from_json(f.read())
+model.load_weights("anomaly.weights.h5")
 scaler = joblib.load("scaler.pkl")
 
-# Titre
-st.title("Détection de Fraude avec Autoencoder")
+# ─────────── Constantes
+FEATURE_NAMES = [
+    "distance_from_home", "distance_from_last_transaction",
+    "ratio_to_median_purchase_price", "repeat_retailer",
+    "used_chip", "used_pin_number", "online_order"
+]
+NUM_COLS, CAT_COLS = FEATURE_NAMES[:3], FEATURE_NAMES[3:]
+THRESHOLD = 0.297596          # seuil d’erreur → fraude
 
-# Choix de méthode d'entrée
-option = st.radio("Entrée :", ("Une seule transaction", "Téléverser un CSV"))
+# ─────────── App
+app = Flask(__name__)
 
-if option == "Une seule transaction":
-    # Entrée manuelle
-    input_values = []
-    for i in range(autoencoder.input_shape[1]):
-        val = st.number_input(f"Feature {i+1}", step=0.01)
-        input_values.append(val)
+# ══════════════ ROUTES ════════════════════════════════════════
+@app.route("/")
+def home():
+    """Page d’accueil avec boutons de navigation"""
+    return render_template("home.html")
 
-    if st.button("Prédire"):
-        x = np.array(input_values).reshape(1, -1)
-        x_scaled = scaler.transform(x)
-        recon = autoencoder.predict(x_scaled)
-        error = np.mean(np.abs(x_scaled - recon))
+@app.route("/analyse", methods=["GET", "POST"])
+def analyse():
+    """Formulaire de transaction et détection de fraude"""
+    result = None
+    if request.method == "POST":
+        try:
+            # 1) récupération des 7 valeurs
+            vals = [float(request.form.get(f"feature{i+1}")) for i in range(7)]
 
-        threshold = 0.01  # ⚠️ à ajuster selon ton tuning
-        if error > threshold:
-            st.error(f"❗ Anomalie détectée (erreur = {error:.5f})")
-        else:
-            st.success(f"✅ Transaction normale (erreur = {error:.5f})")
+            # 2) préparation
+            df = pd.DataFrame([vals], columns=FEATURE_NAMES)
+            scaled = scaler.transform(df[NUM_COLS])
+            X = np.concatenate([scaled, df[CAT_COLS].values], axis=1)
 
-else:
-    # Upload CSV
-    file = st.file_uploader("Téléverser un fichier CSV")
-    if file:
-        df = pd.read_csv(file)
-        x_scaled = scaler.transform(df)
-        recon = autoencoder.predict(x_scaled)
-        errors = np.mean(np.abs(x_scaled - recon), axis=1)
+            # 3) reconstruction
+            recon = model.predict(X, verbose=0)
+            err = float(np.mean(np.abs(X - recon)))
 
-        threshold = 0.01  # à ajuster
-        anomalies = errors > threshold
+            # 4) score et niveau de risque
+            score = err / THRESHOLD
+            level, color = (
+                ("faible", "success") if score < 1
+                else ("moyen", "warning") if score < 3
+                else ("élevé", "danger")
+            )
 
-        result_df = df.copy()
-        result_df["Reconstruction_Error"] = errors
-        result_df["Anomaly"] = anomalies
+            result = {
+                "error": round(err, 5),
+                "score": round(score, 2),
+                "level": level,
+                "color": color,
+                "fraud": err > THRESHOLD
+            }
+        except Exception as e:
+            result = {"error": str(e), "fraud": None}
 
-        st.write(result_df)
-        st.write(f"Nombre d’anomalies détectées : {np.sum(anomalies)}")
+    return render_template("index.html", result=result)
+
+@app.route("/presentation")
+def presentation():
+    return render_template("presentation.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+# ─────────── Lancement
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)

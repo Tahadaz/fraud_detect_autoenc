@@ -1,5 +1,5 @@
-streamlit
+flask
 tensorflow
-scikit-learn
 pandas
+scikit-learn==1.5.1
 joblib

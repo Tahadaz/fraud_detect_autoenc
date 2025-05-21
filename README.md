@@ -1,90 +1,112 @@
-# Détection de Fraude par Autoencodeur
 
-Ce projet implémente un système de détection de transactions bancaires frauduleuses utilisant un autoencodeur entraîné sur des données de transactions normales. Le modèle apprend à reconstruire les transactions légitimes et détecte les anomalies par une erreur de reconstruction élevée.
+# Détection de Transactions Frauduleuses par Autoencodeur
 
----
+Ce projet met en œuvre une application web de détection de fraude bancaire basée sur un modèle d'autoencodeur non supervisé. Il a été réalisé dans le cadre d’un projet à l’École Mohammadia d’Ingénieurs (EMI), sous la supervision de Monsieur Youssef Lamrani, par :
 
-## Fonctionnalités principales
-
-- Modèle autoencodeur symétrique entraîné uniquement sur les transactions non frauduleuses
-- Calcul d’un score d’anomalie basé sur l’erreur moyenne absolue de reconstruction (MAE)
-- Interface web Flask pour tester les transactions en temps réel
-- Déploiement Dockerisé prêt pour production
-- Calcul et calibration automatique d’un seuil de détection basé sur la distribution des erreurs
+- Dazine Ahmed Taha  
+- Wahidi Mouad  
+- Ouhannou Anouar  
+- Mohamed Said Adiouane  
 
 ---
 
-## Structure du projet
+## 🔍 Objectif
 
-```├── aut.py # API Flask avec logique de prédiction
-```├── requirements.txt # Dépendances Python
-```├── Dockerfile # Containerisation du projet
-```├── templates/ # Pages HTML (index, présentation, etc.)
-```├── static/ # Fichiers statiques (CSS, images)
-```├── model_config.json # Configuration du modèle Keras
-```├── anomaly.weights.h5 # Poids du modèle autoencodeur
-```├── scaler.pkl # Scaler pour la normalisation des features
-```└── README.md # Ce fichier
+L’objectif principal est de détecter automatiquement des transactions suspectes sans supervision, c’est-à-dire sans entraîner le modèle avec des exemples de fraude. Le modèle apprend uniquement à reconstruire des transactions normales, et identifie comme anomalies celles qu’il ne parvient pas à bien reconstruire.
+
+---
+
+## 🧠 Technologies utilisées
+
+- **Python 3.10**
+- **Keras / TensorFlow** pour le modèle autoencodeur
+- **Scikit-learn** pour le prétraitement
+- **Flask** pour l’interface web
+- **Docker** pour le déploiement
+- **Google Cloud Run** pour l’hébergement
+- **HTML/CSS/JS** pour l’interface utilisateur
+
+---
+
+## 📁 Structure du projet
+
 ```
+.
+├── aut.py                 # Application Flask
+├── requirements.txt       # Dépendances Python
+├── Dockerfile             # Configuration Docker
+├── model_config.json      # Architecture du modèle
+├── anomaly.weights.h5     # Poids de l’autoencodeur entraîné
+├── scaler.pkl             # Scaler des données
+├── templates/             # Pages HTML (formulaire, présentation...)
+├── static/                # CSS et images
+└── README.md              # Ce fichier
+```
+
 ---
 
-## Installation et utilisation
+## 🚀 Lancer le projet
 
-### Prérequis
+### ▶️ En local
 
-- Python 3.10+
-- Docker (optionnel mais recommandé)
-- Pipenv ou virtualenv pour isoler l’environnement Python
+```bash
+git clone https://github.com/Tahadaz/fraud_detect_autoenc.git
+cd fraud_detect_autoenc
+pip install -r requirements.txt
+python aut.py
+```
+→ Accédez à l’app sur `http://localhost:8080`
 
-### Installation locale
+### 🐳 Avec Docker
 
-`git clone https://github.com/Tahadaz/fraud_detect_autoenc.git
-`cd fraud_detect_autoenc
-`pip install -r requirements.txt
-`python aut.py
-Le serveur Flask démarre sur http://localhost:8080.
-
-### Utilisation avec Docker
+```bash
 docker build -t fraud-app .
 docker run -p 8080:8080 fraud-app
+```
 
-### Description technique
-Modèle : autoencodeur dense symétrique 7→64→16→6→16→64→7, activations ReLU sauf dernière couche linéaire.
+### 🌐 Version en ligne
 
-Données : 7 features (3 numériques + 4 binaires) extraites et normalisées.
+Application déployée sur Google Cloud Run :  
+👉 [fraud-app-xxxxx.a.run.app](https://fraud-app-xxxxx.a.run.app) *(à adapter)*
 
-Seuil d’anomalie : fixé au 95e percentile de l’erreur MAE sur transactions normales (~0.543).
+---
 
-Prédiction : une transaction est signalée comme frauduleuse si l’erreur dépasse ce seuil.
+## ⚙️ Description du modèle
 
-Interface : formulaire web pour saisir les données d’une transaction et afficher le résultat.
+- Architecture : 7 → 64 → 16 → 6 → 16 → 64 → 7
+- Fonction de perte : `Mean Absolute Error (MAE)`
+- Seuil défini par calibration sur le 95e percentile des erreurs de reconstruction
+- 7 features d’entrée (3 numériques, 4 binaires)
 
-### Résultats
-Rappel (Recall) : 85%
+---
 
-Précision (Precision) : 37%
+## 📊 Résultats
 
-F1-score : 0.52
+| Metric     | Score   |
+|------------|---------|
+| Recall     | 85 %    |
+| Precision  | 37 %    |
+| F1-Score   | 0.52    |
+| Accuracy   | 86 %    |
 
-Accuracy : 86%
+> Ces résultats permettent un bon filtrage initial dans un système de détection en production.
 
-Ces résultats représentent un bon compromis pour un système de filtrage de premier niveau.
+---
 
-### Auteurs & Encadrement
-Ce projet a été réalisé par :
+## 📎 Livrables inclus
 
-Dazine Ahmed Taha
+- Code source de l’application
+- Dockerfile pour déploiement
+- Modèle et scaler entraînés
 
-Wahidi Mouad
+---
 
-Ouhannou Anouar
+## 📄 Licence
 
-Mohamed Said Adiouane
+Projet sous licence MIT.
 
-Sous l’encadrement de Monsieur Youssef Lamrani, dans le cadre d’un projet à l’École Mohammadia d’Ingénieurs (EMI).
+---
 
+## 🙏 Remerciements
 
-### Remarques
-Pensez à adapter le fichier scaler.pkl et les poids anomaly.weights.h5 si vous réentraîner le modèle.
-
-Le seuil d’anomalie (THRESHOLD) est modifiable dans aut.py pour ajuster la sensibilité du détecteur.
+Encadré par Monsieur **Youssef Lamrani** dans le cadre d’un projet de fin d’année à l’**École Mohammadia d’Ingénieurs (EMI)**.

@@ -67,13 +67,13 @@ docker run -p 8080:8080 fraud-app
 ### 🌐 Version en ligne
 
 Application déployée sur Google Cloud Run :  
-👉 [fraud-app-xxxxx.a.run.app](https://fraud-app-xxxxx.a.run.app) *(à adapter)*
+👉 https://fraud-app-1073965958518.us-central1.run.app/
 
 ---
 
 ## ⚙️ Description du modèle
 
-- Architecture : 7 → 64 → 16 → 6 → 16 → 64 → 7
+- Architecture : 7 → 64 → 16 → 5 → 16 → 64 → 7
 - Fonction de perte : `Mean Absolute Error (MAE)`
 - Seuil défini par calibration sur le 95e percentile des erreurs de reconstruction
 - 7 features d’entrée (3 numériques, 4 binaires)

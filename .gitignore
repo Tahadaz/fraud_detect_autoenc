@@ -1,11 +1,26 @@
+﻿# Python
 __pycache__/
-.env
 *.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & models (don’t track big/local files)
+data/
+models/
+*.csv
+*.xls
+*.xlsx
 *.pkl
 *.h5
-anomaly.weights.h5
-scaler.pkl
-.vscode/
+*.joblib
+*.json
+
+# Env/secrets/logs
+.env
+*.log
+
+# OS files
 .DS_Store
-.ipynb_checkpoints/
-/data/
+Thumbs.db
